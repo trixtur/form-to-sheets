@@ -74,7 +74,7 @@ async function loadConfig() {
     }
     state.config = data;
     tryRenderRecaptcha();
-  } catch (err) {
+  } catch {
     setStatus("Configuration error. Check config.json.", "error");
   }
 }
