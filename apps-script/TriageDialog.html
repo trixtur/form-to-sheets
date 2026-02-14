@@ -120,28 +120,34 @@
 
       function loadNext() {
         setStatus("Loading...");
-        google.script.run.withSuccessHandler((entry) => {
-          renderEntry(entry);
-          setStatus("");
-        }).getNextTriageEntry();
+        google.script.run
+          .withSuccessHandler((entry) => {
+            renderEntry(entry);
+            setStatus("");
+          })
+          .getNextTriageEntry();
       }
 
       acceptBtn.addEventListener("click", () => {
         if (!currentRowIndex) return;
         setButtons(false);
         setStatus("Accepting...");
-        google.script.run.withSuccessHandler(() => {
-          loadNext();
-        }).acceptTriageEntry(currentRowIndex);
+        google.script.run
+          .withSuccessHandler(() => {
+            loadNext();
+          })
+          .acceptTriageEntry(currentRowIndex);
       });
 
       rejectBtn.addEventListener("click", () => {
         if (!currentRowIndex) return;
         setButtons(false);
         setStatus("Rejecting...");
-        google.script.run.withSuccessHandler(() => {
-          loadNext();
-        }).rejectTriageEntry(currentRowIndex);
+        google.script.run
+          .withSuccessHandler(() => {
+            loadNext();
+          })
+          .rejectTriageEntry(currentRowIndex);
       });
 
       loadNext();
