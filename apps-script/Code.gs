@@ -11,34 +11,11 @@ const HEADERS = [
 
 function doPost(e) {
   try {
-    const payload = JSON.parse(e.postData.contents || "{}");
-    validatePayload(payload);
-
-    const recaptchaSecret = getProperty_("RECAPTCHA_SECRET");
-    if (!recaptchaSecret) {
-      throw new Error("Missing reCAPTCHA secret configuration.");
-    }
-
-    const recaptchaValid = verifyRecaptcha_(recaptchaSecret, payload.recaptchaToken, e);
-    if (!recaptchaValid) {
-      return jsonResponse_(false, "reCAPTCHA validation failed.");
-    }
-
-    const sheet = getSheet_(SHEET_TRIAGE);
-    ensureHeaders_(sheet);
-
-    sheet.appendRow([
-      new Date(),
-      payload.firstName,
-      payload.lastName,
-      payload.email,
-      payload.streetAddress,
-      payload.callsign
-    ]);
-
+    const payload = JSON.parse((e && e.postData && e.postData.contents) || "{}");
+    processSubmission_(payload);
     return jsonResponse_(true, "Queued for review.");
   } catch (err) {
-    return jsonResponse_(false, err.message || "Server error.");
+    return jsonResponse_(false, err && err.message ? err.message : "Server error.");
   }
 }
 
@@ -70,16 +47,26 @@ function getNextTriageEntry() {
       return null;
     }
 
-    const rowValues = sheet.getRange(2, 1, 1, HEADERS.length).getValues()[0];
-    return {
-      rowIndex: 2,
-      timestamp: rowValues[0],
-      firstName: rowValues[1],
-      lastName: rowValues[2],
-      email: rowValues[3],
-      streetAddress: rowValues[4],
-      callsign: rowValues[5]
-    };
+    const rows = sheet.getRange(2, 1, lastRow - 1, HEADERS.length).getValues();
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = rows[i];
+      const hasData = row.some((cell) => String(cell || "").trim() !== "");
+      if (!hasData) {
+        continue;
+      }
+
+      return {
+        rowIndex: i + 2,
+        timestamp: row[0] instanceof Date ? row[0].toISOString() : String(row[0] || ""),
+        firstName: String(row[1] || ""),
+        lastName: String(row[2] || ""),
+        email: String(row[3] || ""),
+        streetAddress: String(row[4] || ""),
+        callsign: String(row[5] || "")
+      };
+    }
+
+    return null;
   } finally {
     lock.releaseLock();
   }
@@ -109,7 +96,6 @@ function rejectTriageEntry(rowIndex) {
   try {
     const triageSheet = getSheet_(SHEET_TRIAGE);
     ensureHeaders_(triageSheet);
-
     triageSheet.deleteRow(rowIndex);
     return true;
   } finally {
@@ -126,25 +112,55 @@ function validatePayload(payload) {
   });
 }
 
-function verifyRecaptcha_(secret, token, e) {
-  const endpoint = "https://www.google.com/recaptcha/api/siteverify";
-  const payload = {
-    secret,
-    response: token,
-    remoteip: e && e.parameter ? e.parameter.userIp : undefined
-  };
+function processSubmission_(payload) {
+  validatePayload(payload);
+  const recaptchaSecret = getProperty_("RECAPTCHA_SECRET");
+  if (!recaptchaSecret) {
+    throw new Error("Missing RECAPTCHA_SECRET script property.");
+  }
 
+  const recaptchaValid = verifyRecaptcha_(recaptchaSecret, payload.recaptchaToken);
+  if (!recaptchaValid) {
+    throw new Error("reCAPTCHA validation failed.");
+  }
+
+  const sheet = getSheet_(SHEET_TRIAGE);
+  ensureHeaders_(sheet);
+
+  sheet.appendRow([
+    new Date(),
+    payload.firstName,
+    payload.lastName,
+    payload.email,
+    payload.streetAddress,
+    payload.callsign
+  ]);
+}
+
+function verifyRecaptcha_(secret, token) {
+  const endpoint = "https://www.google.com/recaptcha/api/siteverify";
   const response = UrlFetchApp.fetch(endpoint, {
     method: "post",
-    payload
+    payload: {
+      secret,
+      response: token
+    }
   });
 
   const data = JSON.parse(response.getContentText() || "{}");
   return Boolean(data.success);
 }
 
+function getSpreadsheet_() {
+  const id = getProperty_("SHEET_ID");
+  if (!id) {
+    throw new Error("Missing SHEET_ID script property.");
+  }
+  return SpreadsheetApp.openById(id);
+}
+
 function getSheet_(name) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   let sheet = ss.getSheetByName(name);
   if (!sheet) {
     sheet = ss.insertSheet(name);
@@ -161,7 +177,7 @@ function ensureHeaders_(sheet) {
 }
 
 function terraformSheets() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   const required = [SHEET_TRIAGE, SHEET_MAIN];
   const existing = ss.getSheets().map((sheet) => sheet.getName());
 

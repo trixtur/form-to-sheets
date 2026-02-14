@@ -38,24 +38,17 @@ form.addEventListener("submit", async (event) => {
   };
 
   try {
-    const response = await fetch(state.config.appsScriptUrl, {
+    await fetch(state.config.appsScriptUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      mode: "no-cors",
       body: JSON.stringify(payload)
     });
-
-    const data = await response.json();
-    if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Submission failed.");
-    }
 
     form.reset();
     if (window.grecaptcha) {
       window.grecaptcha.reset();
     }
-    setStatus("Submission received. A team member will review it soon.", "success");
+    setStatus("Submission sent for processing. A team member will review it soon.", "success");
   } catch (err) {
     setStatus(err.message || "Something went wrong.", "error");
   }
