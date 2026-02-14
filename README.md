@@ -10,6 +10,7 @@ Collect public sign-ups via a web form, queue them in Google Sheets for review, 
 
 ## Repo Layout
 - `index.html`, `app.js`, `styles.css`: public form
+- `config.example.json`: config template (copy to `config.json`)
 - `apps-script/Code.gs`: Apps Script backend + triage logic
 - `apps-script/TriageDialog.html`: review dialog UI
 - `apps-script/appsscript.json`: Apps Script manifest
@@ -25,9 +26,10 @@ Collect public sign-ups via a web form, queue them in Google Sheets for review, 
 8. Deploy as a Web App.
 9. Web App settings: Execute as `Me`. Who has access: `Anyone`.
 10. Copy the Web App URL.
-11. In `app.js`, set `CONFIG.appsScriptUrl` to the Web App URL.
-12. In `app.js`, set `CONFIG.recaptchaSiteKey` to your reCAPTCHA v2 site key.
-13. Host `index.html`, `app.js`, and `styles.css` on any static hosting.
+11. Copy `config.example.json` to `config.json`.
+12. In `config.json`, set `appsScriptUrl` to the Web App URL.
+13. In `config.json`, set `recaptchaSiteKey` to your reCAPTCHA v2 site key.
+14. Host `index.html`, `app.js`, `styles.css`, and `config.json` on any static hosting.
 14. In the Apps Script editor, run `terraformSheets` once to create `Triage` and `Main`.
 
 ## How Triage Works

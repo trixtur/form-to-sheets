@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Group Sign-Up</title>
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
   </head>
   <body>
     <main class="page">
@@ -42,7 +42,7 @@
           </div>
 
           <div class="field recaptcha">
-            <div class="g-recaptcha" data-sitekey="RECAPTCHA_SITE_KEY"></div>
+            <div id="recaptcha" class="g-recaptcha"></div>
           </div>
 
           <button class="primary" type="submit">Submit</button>
