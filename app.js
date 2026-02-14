@@ -1,19 +1,26 @@
-const CONFIG = {
-  appsScriptUrl: "APPS_SCRIPT_WEB_APP_URL",
-  recaptchaSiteKey: "RECAPTCHA_SITE_KEY"
-};
-
 const form = document.getElementById("signup-form");
 const statusEl = document.getElementById("status");
+const recaptchaContainer = document.getElementById("recaptcha");
 
-const recaptchaContainer = document.querySelector(".g-recaptcha");
-if (recaptchaContainer) {
-  recaptchaContainer.setAttribute("data-sitekey", CONFIG.recaptchaSiteKey);
-}
+const state = {
+  config: null,
+  recaptchaReady: false,
+  recaptchaRendered: false
+};
+
+window.onRecaptchaLoad = () => {
+  state.recaptchaReady = true;
+  tryRenderRecaptcha();
+};
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   setStatus("Submitting...");
+
+  if (!state.config) {
+    setStatus("Configuration not loaded yet. Please try again.", "error");
+    return;
+  }
 
   const token = window.grecaptcha ? window.grecaptcha.getResponse() : "";
   if (!token) {
@@ -31,7 +38,7 @@ form.addEventListener("submit", async (event) => {
   };
 
   try {
-    const response = await fetch(CONFIG.appsScriptUrl, {
+    const response = await fetch(state.config.appsScriptUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -61,3 +68,35 @@ function setStatus(message, type) {
     statusEl.classList.add(type);
   }
 }
+
+async function loadConfig() {
+  try {
+    const response = await fetch("config.json", { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error("Missing config.json");
+    }
+    const data = await response.json();
+    if (!data.appsScriptUrl || !data.recaptchaSiteKey) {
+      throw new Error("Invalid config.json");
+    }
+    state.config = data;
+    tryRenderRecaptcha();
+  } catch (err) {
+    setStatus("Configuration error. Check config.json.", "error");
+  }
+}
+
+function tryRenderRecaptcha() {
+  if (!state.config || !state.recaptchaReady || state.recaptchaRendered) {
+    return;
+  }
+  if (!recaptchaContainer || !window.grecaptcha) {
+    return;
+  }
+  window.grecaptcha.render(recaptchaContainer, {
+    sitekey: state.config.recaptchaSiteKey
+  });
+  state.recaptchaRendered = true;
+}
+
+loadConfig();
