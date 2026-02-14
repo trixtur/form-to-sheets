@@ -1,0 +1,121 @@
+:root {
+  --bg: #f4f0ea;
+  --card: #ffffff;
+  --text: #1b1b1b;
+  --muted: #5e5e5e;
+  --accent: #005a9c;
+  --accent-dark: #004a82;
+  --border: #ddd5c9;
+  --shadow: 0 18px 30px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Georgia", "Times New Roman", serif;
+  color: var(--text);
+  background: radial-gradient(circle at top, #fdfbf7, #efe7dc 65%, #e9dfd3);
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+}
+
+.card {
+  width: min(640px, 100%);
+  background: var(--card);
+  padding: 40px;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+header h1 {
+  margin: 0 0 12px;
+  font-size: 36px;
+  letter-spacing: 0.5px;
+}
+
+header p {
+  margin: 0 0 28px;
+  color: var(--muted);
+}
+
+form {
+  display: grid;
+  gap: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+label {
+  font-weight: 600;
+}
+
+input {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 16px;
+}
+
+input:focus {
+  outline: 2px solid rgba(0, 90, 156, 0.3);
+  border-color: var(--accent);
+}
+
+.primary {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.primary:hover {
+  background: var(--accent-dark);
+}
+
+.status {
+  margin-top: 18px;
+  min-height: 24px;
+  color: var(--muted);
+}
+
+.status.success {
+  color: #0f7c3d;
+}
+
+.status.error {
+  color: #b42318;
+}
+
+.recaptcha {
+  display: flex;
+  justify-content: flex-start;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 28px 20px;
+  }
+
+  header h1 {
+    font-size: 28px;
+  }
+}

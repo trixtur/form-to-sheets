@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Group Sign-Up</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <header>
+          <h1>Sign Up</h1>
+          <p>Complete the form below to join the group. Submissions are reviewed before approval.</p>
+        </header>
+
+        <form id="signup-form">
+          <div class="field">
+            <label for="firstName">First Name</label>
+            <input id="firstName" name="firstName" type="text" required />
+          </div>
+
+          <div class="field">
+            <label for="lastName">Last Name</label>
+            <input id="lastName" name="lastName" type="text" required />
+          </div>
+
+          <div class="field">
+            <label for="email">Email Address</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+
+          <div class="field">
+            <label for="streetAddress">Street Address</label>
+            <input id="streetAddress" name="streetAddress" type="text" required />
+          </div>
+
+          <div class="field">
+            <label for="callsign">Callsign</label>
+            <input id="callsign" name="callsign" type="text" required />
+          </div>
+
+          <div class="field recaptcha">
+            <div class="g-recaptcha" data-sitekey="RECAPTCHA_SITE_KEY"></div>
+          </div>
+
+          <button class="primary" type="submit">Submit</button>
+        </form>
+
+        <div id="status" class="status" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
