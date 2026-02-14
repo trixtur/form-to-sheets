@@ -52,9 +52,7 @@ function onOpen() {
 }
 
 function showTriageDialog() {
-  const html = HtmlService.createHtmlOutputFromFile("TriageDialog")
-    .setWidth(420)
-    .setHeight(520);
+  const html = HtmlService.createHtmlOutputFromFile("TriageDialog").setWidth(420).setHeight(520);
   SpreadsheetApp.getUi().showModalDialog(html, "Triage Review");
 }
 
@@ -118,7 +116,14 @@ function rejectTriageEntry(rowIndex) {
 }
 
 function validatePayload(payload) {
-  const required = ["firstName", "lastName", "email", "streetAddress", "callsign", "recaptchaToken"];
+  const required = [
+    "firstName",
+    "lastName",
+    "email",
+    "streetAddress",
+    "callsign",
+    "recaptchaToken"
+  ];
   required.forEach((key) => {
     if (!payload[key] || String(payload[key]).trim() === "") {
       throw new Error(`Missing required field: ${key}.`);
@@ -181,9 +186,9 @@ function terraformSheets() {
 }
 
 function jsonResponse_(ok, message) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok, message, error: ok ? null : message }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(
+    JSON.stringify({ ok, message, error: ok ? null : message })
+  ).setMimeType(ContentService.MimeType.JSON);
 }
 
 function getProperty_(key) {
