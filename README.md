@@ -25,15 +25,16 @@ Collect public sign-ups via a web form, queue them in Google Sheets for review, 
 4. Create `TriageDialog.html` and paste in `apps-script/TriageDialog.html`.
 5. Replace the default manifest with `apps-script/appsscript.json`.
 6. Open Project Settings and add Script Properties.
-7. Set `RECAPTCHA_SECRET` to your reCAPTCHA v2 secret key.
-8. Deploy as a Web App.
-9. Web App settings: Execute as `Me`. Who has access: `Anyone`.
-10. Copy the Web App URL.
-11. Copy `config.example.json` to `config.json`.
-12. In `config.json`, set `appsScriptUrl` to the Web App URL.
-13. In `config.json`, set `recaptchaSiteKey` to your reCAPTCHA v2 site key.
-14. Host `index.html`, `app.js`, `styles.css`, and `config.json` on any static hosting.
-15. In the Apps Script editor, run `terraformSheets` once to create `Triage` and `Main`.
+7. Set `SHEET_ID` to your spreadsheet ID (from the sheet URL).
+8. Set `RECAPTCHA_SECRET` to your reCAPTCHA v2 secret key.
+9. Deploy as a Web App.
+10. Web App settings: Execute as `Me`. Who has access: `Anyone`.
+11. Copy the Web App URL.
+12. Copy `config.example.json` to `config.json`.
+13. In `config.json`, set `appsScriptUrl` to the Web App URL.
+14. In `config.json`, set `recaptchaSiteKey` to your reCAPTCHA v2 site key.
+15. Host `index.html`, `app.js`, `styles.css`, and `config.json` on any static hosting.
+16. In the Apps Script editor, run `terraformSheets` once to create `Triage` and `Main`.
 
 ## How Triage Works
 
@@ -54,12 +55,14 @@ Collect public sign-ups via a web form, queue them in Google Sheets for review, 
 ## Configuration Notes
 
 - reCAPTCHA is validated server-side before data reaches `Triage`.
+- `SHEET_ID` determines which spreadsheet is written by web requests.
 - If `Triage` or `Main` does not exist, the script creates them.
 
 ## Troubleshooting
 
 - If the dialog does not appear, run `showTriageDialog` from the Apps Script editor once to grant permissions.
 - If submissions fail, confirm the Web App URL in `config.json` is correct.
+- If submissions fail, confirm `SHEET_ID` is set in Script Properties.
 - If submissions fail, confirm `RECAPTCHA_SECRET` is set in Script Properties.
 - If submissions fail, confirm the deployment access is set to `Anyone`.
 
