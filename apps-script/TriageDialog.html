@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+  <head>
+    <base target="_top" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 16px;
+        color: #1b1b1b;
+      }
+
+      h2 {
+        margin-top: 0;
+      }
+
+      .entry {
+        margin: 16px 0;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
+      }
+
+      .row {
+        margin-bottom: 8px;
+      }
+
+      .label {
+        font-weight: bold;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      button {
+        padding: 10px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .accept {
+        background: #0f7c3d;
+        color: #fff;
+      }
+
+      .reject {
+        background: #b42318;
+        color: #fff;
+      }
+
+      .status {
+        margin-top: 14px;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Triage Review</h2>
+    <p>Review each submission. Accept will move it to Main. Reject will remove it.</p>
+
+    <div id="entry" class="entry" hidden></div>
+    <div id="empty" class="status">Loading next entry...</div>
+
+    <div class="actions">
+      <button class="accept" id="acceptBtn" disabled>Accept</button>
+      <button class="reject" id="rejectBtn" disabled>Reject</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <script>
+      const entryEl = document.getElementById("entry");
+      const emptyEl = document.getElementById("empty");
+      const statusEl = document.getElementById("status");
+      const acceptBtn = document.getElementById("acceptBtn");
+      const rejectBtn = document.getElementById("rejectBtn");
+
+      let currentRowIndex = null;
+
+      function setStatus(message) {
+        statusEl.textContent = message || "";
+      }
+
+      function setButtons(enabled) {
+        acceptBtn.disabled = !enabled;
+        rejectBtn.disabled = !enabled;
+      }
+
+      function renderEntry(entry) {
+        if (!entry) {
+          entryEl.hidden = true;
+          emptyEl.textContent = "No items left in triage.";
+          setButtons(false);
+          return;
+        }
+
+        currentRowIndex = entry.rowIndex;
+        entryEl.innerHTML = [
+          row("Timestamp", entry.timestamp),
+          row("First Name", entry.firstName),
+          row("Last Name", entry.lastName),
+          row("Email", entry.email),
+          row("Street Address", entry.streetAddress),
+          row("Callsign", entry.callsign)
+        ].join("");
+
+        entryEl.hidden = false;
+        emptyEl.textContent = "";
+        setButtons(true);
+      }
+
+      function row(label, value) {
+        return `<div class="row"><span class="label">${label}:</span> ${value || ""}</div>`;
+      }
+
+      function loadNext() {
+        setStatus("Loading...");
+        google.script.run.withSuccessHandler((entry) => {
+          renderEntry(entry);
+          setStatus("");
+        }).getNextTriageEntry();
+      }
+
+      acceptBtn.addEventListener("click", () => {
+        if (!currentRowIndex) return;
+        setButtons(false);
+        setStatus("Accepting...");
+        google.script.run.withSuccessHandler(() => {
+          loadNext();
+        }).acceptTriageEntry(currentRowIndex);
+      });
+
+      rejectBtn.addEventListener("click", () => {
+        if (!currentRowIndex) return;
+        setButtons(false);
+        setStatus("Rejecting...");
+        google.script.run.withSuccessHandler(() => {
+          loadNext();
+        }).rejectTriageEntry(currentRowIndex);
+      });
+
+      loadNext();
+    </script>
+  </body>
+</html>
